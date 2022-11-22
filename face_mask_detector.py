@@ -21,26 +21,26 @@ IMG_WIDTH = 150
 def train_test_split(source, trainPath, testPath, split_size):
 	dataset = []
 	for crnImage in os.listdir(source):
-		data = source + '/' + crnImage
+		data = f'{source}/{crnImage}'
 		if(os.path.getsize(data) > 0):
 			dataset.append(crnImage)
 	train_len = int(len(dataset) * split_size)
 	test_len = int(len(dataset) - train_len)
 	shuffled = random.sample(dataset, len(dataset))
-	train = dataset[0:train_len]
-	test = dataset[train_len:len(dataset)]
+	train = dataset[:train_len]
+	test = dataset[train_len:]
 	print("train images with mask:",len(train))
 	print("test images without mask:",len(test))
 
   #copying train and test images in seaparate directories
 	for trainDataPoint in train: 
-		crnTrainDataPath = source + '/' + trainDataPoint
-		newTrainDataPath =  trainPath + '/' + trainDataPoint
+		crnTrainDataPath = f'{source}/{trainDataPoint}'
+		newTrainDataPath = f'{trainPath}/{trainDataPoint}'
 		copyfile(crnTrainDataPath, newTrainDataPath)
 
 	for testDataPoint in test:
-		crnTestDataPath = source + '/' + testDataPoint
-		newTestDataPath =  testPath + '/' + testDataPoint
+		crnTestDataPath = f'{source}/{testDataPoint}'
+		newTestDataPath = f'{testPath}/{testDataPoint}'
 		copyfile(crnTestDataPath, newTestDataPath)
 
 model = tf.keras.models.Sequential([
@@ -146,13 +146,13 @@ while True:
         reshaped = np.reshape(normalized,(1,IMG_WIDTH,IMG_HEIGHT,3))
         reshaped = np.vstack([reshaped])
         result = model.predict(reshaped)
-        
+
         label = np.argmax(result,axis=1)[0]
-      
+
         cv2.rectangle(im,(x* size,y* size),((x+w)* size,(y+h)* size),color_dict[label],2)
         cv2.rectangle(im,(x * size,(y* size)-40),((x+w)* size,y* size),color_dict[label],-1)
         cv2.putText(im, labels_dict[label], (x* size + 10, (y* size)-10),cv2.FONT_HERSHEY_DUPLEX,0.8,(255,255,255),2)
-        
+
     cv2.imshow('Mask Detection', im)
     key = cv2.waitKey(10)
     if key == 27:
